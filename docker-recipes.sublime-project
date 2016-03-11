@@ -1,0 +1,13 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"name": "Docker Recipes",
+			"file_exclude_patterns": [
+				".pyc" ],
+			"folder_exlude_patterns": [
+				".git" ]
+		}
+	]
+}
