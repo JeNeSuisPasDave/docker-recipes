@@ -1,6 +1,6 @@
-# Using Git with Windows Powershell
+# Using Git with Windows PowerShell
 
-How to install Git on Windows 10 systems and run Git from a Powershell command line.
+How to install Git on Windows 10 systems and run Git from a PowerShell command line.
 
 ## Installing Git
 
@@ -10,9 +10,9 @@ Download the install kit from [https://git-for-windows.github.io/][gfw-home]. Th
 [gfw-releases]: (https://github.com/git-for-windows/git/releases)
 [gfw-project]: https://github.com/git-for-windows/git
 
-Launch the installer as the administrator[^runas] and walk through the installation dialog as follows:[^watv]
+Launch the installer as the administrator[^runas] and walk through the installation[^watv] dialog as follows:
 
-[^runas]: Right click on the file and select "Run as administrator". Or open a command using using "Run as adminstrator" and run the installer EXE from that command line.
+[^runas]: Right click on the file and select "Run as administrator". Or open a command using using "Run as administrator" and run the installer EXE from that command line.
 
 [^watv]: I downloaded the 2.7.0 installer, Git-2.7.0.2-64-bit.exe, and ran it (as administrator) on my Windows 10 box.
 
@@ -34,7 +34,7 @@ Launch the installer as the administrator[^runas] and walk through the installat
 
     Uncheck everything. Next.
 
-    ![unselect all install optionsl](git-2.7.0-install/step05.PNG)
+    ![unselect all install options](git-2.7.0-install/step05.PNG)
 
 5. Start panel folder name. Next.
 
@@ -72,7 +72,7 @@ The installer will have laid down three shortcuts in the start menu.
 
 ![view of Git shortcuts](git-2.7.0-install/result01.PNG)
 
-My goal is to not use any of them. I want to use Git from a PowerShell command line. However, if you want to use either `Git Bash` or `Git CMD` then you should launch each[^priv] and config the window properties to enable Quick Edit and set the scroll buffer to 9999 lines.
+My goal is to not use any of them. I want to use Git from a PowerShell command line. However, if you want to use either `Git Bash` or `Git CMD` then you should launch each[^priv] and configure the window properties to enable Quick Edit and set the scroll buffer to 9999 lines.
 
 [^priv]: You may need to launch the command windows using "Run as administrator" to have the privileges needed to save the window property changes.
 
@@ -87,7 +87,7 @@ It's worth launching a command window and checking to see that the expected vers
 
 ## Configure a simple Git PowerShell command window
 
-Use the file explorer to navigate to `:\Windows\System32\WindowsPowerShell\v1.0` and right-click on `powershell.exe` to create a shortcut on the destkop. Rename that shortcut to "Windows PowerShell (bootstrap)" and then move it to the Start Screen folder.[^start]
+Use the file explorer to navigate to `:\Windows\System32\WindowsPowerShell\v1.0` and right-click on `powershell.exe` to create a shortcut on the desktop. Rename that shortcut to "Windows PowerShell (bootstrap)" and then move it to the Start Screen folder.[^start]
 
 [^start]: On my system, the Start Menu folder is `C:\Users\heind.CORP\AppData\Roaming\Microsoft\Windows\Start Menu\Programs`. You can find the location of your own Start Screen by right-clicking on any Start Screen shortcut, selecting "More" and then "Open file location".
 
@@ -150,7 +150,7 @@ I've taken that example and tweaked it a bit to have better colors and work from
 ```powershell
 # Add Git and associated utilities to the PATH
 #
-# NOTE: aliases cannot contain special charachters, so we cannot alias
+# NOTE: aliases cannot contain special characters, so we cannot alias
 #       ssh-agent to 'ssh-agent'. The posh-git modules tries to locate
 #       ssh-agent relative to where git.exe is, and that means we have
 #       to put git.exe in the path and can't just alias it.
@@ -262,3 +262,13 @@ It just has column numbering so I can see how long my lines are, and keep the fi
 #234567890123456789012345678901234567890123456789*1234567890123456789012
 
 ```
+
+## Upgrading Git
+
+To upgrade _Git for Windows_ to a new version, just run the new installer (making sure to run it as administrator). The installer will remember the configuration choices you made during the last install, so it should just be a matter of repeatedly clicking "Next". It is probably a good idea to close any command windows that might have activated Git. And you may get prompted to kill any running `ssh-agent.exe` processes.
+
+I applied Git for Windows 2.7.2 on top of my existing 2.7.0(2) version. After the install I launched my "Windows PowerShell (posh-git)" shortcut and checked the Git version.
+
+![Showing updated Git version](git-2.7.0-install/upgrade01.PNG)
+
+Looks good.

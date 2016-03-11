@@ -1,6 +1,6 @@
 # Add Git and associated utilities to the PATH
 #
-# NOTE: aliases cannot contain special charachters, so we cannot alias
+# NOTE: aliases cannot contain special characters, so we cannot alias
 #       ssh-agent to 'ssh-agent'. The posh-git modules tries to locate
 #       ssh-agent relative to where git.exe is, and that means we have
 #       to put git.exe in the path and can't just alias it.
