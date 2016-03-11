@@ -5,7 +5,7 @@
 			"path": ".",
 			"name": "Docker Recipes",
 			"file_exclude_patterns": [
-				".html" ],
+				"*.html" ],
 			"folder_exlude_patterns": [
 				".git" ]
 		}

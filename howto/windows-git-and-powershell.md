@@ -228,6 +228,18 @@ Create another shortcut similar to the "Windows PowerShell (bootstrap)" shortcut
 
 Pin that shortcut to the Start Screen and the Task Bar and you are good to go.
 
+## ssh-agent
+
+The script above will launch `ssh-agent`, which can cache private key passphrases. This is helpful for avoiding a passpharse prompt every time you execute a Git command that touches the remote repo.
+
+To store your passphrase with the ssh-agent process, use the `ssh-add` command, like so:
+
+```
+& "C:\Program Files\Git\usr\bin\ssh-add.exe" ~\.ssh\github-myid-rsa
+```
+
+That command will prompt you for the passphrase. If you enter the correct one, then all further use of that private key by Git will not again prompt for the passphrase.
+
 ## Other tweaks
 
 I like slightly different colors in my Git command output, so I set my Git global config[^setcfg] to include these colorization overrides:
