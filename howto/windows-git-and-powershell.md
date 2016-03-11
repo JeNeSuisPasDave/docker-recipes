@@ -4,7 +4,7 @@ How to install Git on Windows 10 systems and run Git from a PowerShell command l
 
 ## Installing Git
 
-On modern Windows systems, the best way to get Git is to use the installers produced by the _[Git for Windows project][gfw-home]_.
+On modern Windows systems, the best way to get Git is to use the installers produced by the _[Git for Windows project][gfw-project]_.
 
 Download the install kit from [https://git-for-windows.github.io/][gfw-home]. This will download the installer for the latest release, and that will install 64-bit software. If you want 32-bit software, or a specific git-for-windows version, then visit the [release section][gfw-releases] of the [git-for-windows project][gfw-project]: [https://github.com/git-for-windows/git/releases][gfw-releases].
 
@@ -131,7 +131,7 @@ Great! You've got Git running in PowerShell. `:-)`.
 
 ## Get useful CLI sugar with posh-git
 
-[posh-git](posh) is a PowerShell module that adds tab completion for Git commands and also a very helpful colorized command prompt that shows the branch and status of the current repo. You will want to install posh-git.
+[posh-git][posh] is a PowerShell module that adds tab completion for Git commands and also a very helpful colorized command prompt that shows the branch and status of the current repo. You will want to install posh-git.
 
 [posh]: https://github.com/dahlbyk/posh-git
 
