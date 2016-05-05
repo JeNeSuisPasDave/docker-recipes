@@ -9,4 +9,16 @@ This is replacated from an example by Dr John Lees-Miller. See these slides:
 
 ## Building the container
 
-We build the container image using a Dockerfile.
+We build the container image using the Dockerfile.
+
+```powershell
+docker bulid --tag hello_world .
+```
+
+## Running the container
+
+We can launch the container with
+
+```powershell
+docker run -i -t --rm --publish 3000:8000 hello_world ruby /app/hello_world.rb
+```
