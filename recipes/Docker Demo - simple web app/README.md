@@ -12,7 +12,7 @@ This is replacated from an example by Dr John Lees-Miller. See these slides:
 We build the container image using the Dockerfile.
 
 ```powershell
-docker bulid --tag hello_world .
+docker build --tag hello_world .
 ```
 
 ## Running the container
