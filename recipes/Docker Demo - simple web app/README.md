@@ -22,3 +22,5 @@ We can launch the container with
 ```powershell
 docker run -i -t --rm --publish 3000:8000 hello_world ruby /app/hello_world.rb
 ```
+
+`3000` is the public port on the Docker host VM. So we can browse to the web page presented by the container with URL `http://192.168.99.100:3000/`, where the IP would be the IP of the VM host (in this example, `192.168.99.100`).

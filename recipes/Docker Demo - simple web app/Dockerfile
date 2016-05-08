@@ -45,10 +45,16 @@ RUN gem update
 RUN gem install rdoc && gem rdoc --all --overwrite
 RUN gem install sinatra
 
+# Create a user to run the web server
+#
+RUN useradd -m -s /bin/bash webby
+USER webby
+WORKDIR /home/webby
+
 # Add the web app to the image
 #
-RUN mkdir /app
-ADD hello_world.rb /app/
+RUN mkdir /home/webby/app
+ADD hello_world.rb /home/webby/app/
 
 # Set some environment variables
 #
