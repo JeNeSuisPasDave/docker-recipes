@@ -1,3 +1,15 @@
+# Apple detrius
+#
 .DS_Store
+
+# Multimarkdown output
+#
 *.html
-docker-recipes.sublime-workspace
+
+# Sublime Text
+#
+*.sublime-workspace
+
+# utility script
+#
+delme-utility.src.ps1

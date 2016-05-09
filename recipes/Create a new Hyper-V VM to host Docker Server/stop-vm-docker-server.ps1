@@ -1,3 +1,5 @@
 # stop the heind-dkr2 VM
 #
-& docker-machine stop heind-dkr2
+& docker-machine `
+  --storage-path "E:\.docker\machine" `
+  stop heind-dkr

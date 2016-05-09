@@ -1,3 +1,5 @@
 # Start the heind-dkr2 VM
 #
-& docker-machine start heind-dkr2
+& docker-machine `
+  --storage-path "E:\.docker\machine" `
+  start heind-dkr
