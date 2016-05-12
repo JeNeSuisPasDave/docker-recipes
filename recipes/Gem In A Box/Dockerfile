@@ -12,7 +12,7 @@ ENV REFRESHED_AT 2016-05-12T04:27-0500
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-ENV BUNDLE_AT 2016-05-12T11:36-0500
+ENV BUNDLE_AT 2016-05-12T12:29-0500
 # Install the antecedent gems
 #
 COPY geminabox/ /usr/src/app
