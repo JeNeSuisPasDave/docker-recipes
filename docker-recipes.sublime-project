@@ -9,5 +9,9 @@
 			"folder_exlude_patterns": [
 				".git" ]
 		}
-	]
+	],
+	"settings":
+	{
+		"default_line_ending": "unix"
+	}
 }
