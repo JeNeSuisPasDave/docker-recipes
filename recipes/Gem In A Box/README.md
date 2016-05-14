@@ -1,6 +1,77 @@
 # Gem In A Box
 
-## Adding a new VHD to hold persistent data
+As described in the [RubyGems Guide][diy], the [Gem in a Box][giab] software project provides a way of providing a web hosted gem source.
+
+[diy]: http://guides.rubygems.org/run-your-own-gem-server/
+[giab]: https://github.com/geminabox/geminabox
+
+On OS X using bash, launch the container with:
+
+```bash
+docker run -d -p 9292:9292 \
+  -v /var/lib/dockerdata/geminabox/data:/usr/src/app/data \
+  datihein/geminabox:v0.13.1
+```
+
+or on Windows 10 using Powershell, launch the container with
+
+```powershell
+& docker run -d -p 9292:9292 `
+  -v /var/lib/dockerdata/geminabox/data:/usr/src/app/data `
+  datihein/geminabox:v0.13.1
+```
+
+# Creating
+## Adding a new VMDK to hold persistent data (VirtualBox)
+
+This scenario is for Hyper-V boot2docker VMs.
+
+We have a boot2docker VM with a 20GB disk; initially 17GB is free. We want to have a persistent space for Docker containers and want to be able to grow larger than 20GB. So, we'll add another disk to the system.
+
+### Creating the VMDK (VirtualBox)
+
+To create the data VMDK and format it, follow these steps.
+
+1. Shutdown the VM.
+2. Create a new dynamic VMDK called `dkr-data.vmdx` attached to the SATA controller of the VirtualBox Hyper-V boot2docker VM.
+2. Start the VM
+2. SSH to the VM using `docker-machine ssh`
+3. In my case the new disk was assiged to `/dev/sdb`.
+4. Create a partition on the new disk using `sudo fdisk /dev/sdb`.
+    * Select command `n` to create a new partition,
+    * command `e` to make it an extended partition,
+    * `1` for the first partition, *
+    * take the default start and end cylinder,
+    * `n` to create a new partition (again),
+    * `l` to create a logical partition,
+    * take the default start and end cylinder,
+    * and `w` to write the partition table.
+5. Run `sudo fdisk /dev/sdb` again and use command `p` to print the partition table. In my case I see the logical partition assigned as `/dev/sdb5`.
+5. Create the `ext4` filesystem on the disk: `sudo mkfs.ext4 -L boot2docker-data /dev/sdb5`
+
+### Mounting and mapping the VMDK (VirtualBox)
+
+To make sure the VM mounts the disk on boot, and to map the persistent store to `/var/lib/dockerdata`, follow these steps:
+
+1. `cd /var/lib/boot2docker` (because this directory is symlinked to the primary persistent store for the VM)
+2. `sudo vi bootlocal.sh`[^bootlocal] and put this in the file:
+
+```bash
+#! /bin/sh
+#
+
+# mount the data volume
+#
+mount -t ext4 /dev/sdb5 /mnt/sdb5
+
+# link to /var/lib/dockerdata
+#
+ln -s /mnt/sdb5 /var/lib/dockerdata
+```
+
+[^bootlocal]: (Note: I found out about `bootlocal.sh` here: [http://stackoverflow.com/questions/26639968/boot2docker-startup-script-to-mount-local-shared-folder-with-host][http://stackoverflow.com/questions/26639968/boot2docker-startup-script-to-mount-local-shared-folder-with-host]. See `/opt/bootscript.sh` to see how and when `bootlocal.sh` gets invoked.)
+
+## Adding a new VHD to hold persistent data (Hyper-V)
 
 This scenario is for Hyper-V boot2docker VMs.
 

@@ -1,7 +1,10 @@
 # Ruby virtual environment working directories and files
 #
+.ruby-version
 .rblcl/
 deactivate-project.ps1
+.gems/
+.rbenv-gemsets
 
 # geminabox source of gems
 #

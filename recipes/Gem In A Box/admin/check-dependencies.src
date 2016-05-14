@@ -1,0 +1,17 @@
+# NOTE: expect that this is preceded by:
+# source check-functions.src
+#
+
+GEMINABOX_VSN_EXP_=0.13.1
+GEMINABOX_VSN_MAX_=0.13.2
+
+# Capture pip packages
+#
+PKGS_=`gem list`
+
+# Check whether geminabox is installed
+#
+is_this_gem_installed "geminabox" "${GEMINABOX_VSN_EXP_}" "${GEMINABOX_VSN_MAX_}"
+if (( 0 == $is_this_gem_installed )); then
+  exit 8
+fi
