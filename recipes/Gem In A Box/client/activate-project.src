@@ -41,7 +41,7 @@ echo "unalias deactivate_project" >> deactivate_project.src
 
 # Setup the alias to deactivate the local environments
 #
-alias deactivate_project='. '$PROJECT_ROOT_'/deactivate_project.src'
+alias deactivate_project='. "'$PROJECT_ROOT_'/deactivate_project.src"'
 unset PROJECT_ROOT_
 
 # Inform user of how to get default environment back

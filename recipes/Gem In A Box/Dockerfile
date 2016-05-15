@@ -5,10 +5,6 @@ MAINTAINER  Dave Hein <dhein@acm.org>
 # To void the cache beyond the base image, change REFRESHED_AT to current time
 #
 ENV REFRESHED_AT 2016-05-12T04:27-0500
-
-# throw errors if Gemfile has been modified since Gemfile.lock
-#
-
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 

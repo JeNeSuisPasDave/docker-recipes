@@ -1,11 +1,83 @@
 # Gem In A Box
 
-As described in the [RubyGems Guide][diy], the [Gem in a Box][giab] software project provides a way of providing a web hosted gem source.
+This Docker recipe extends a Ruby container with a data volume and `geminabox` to host a local gem source. As described in the [RubyGems Guide][diy], the [Gem in a Box][giab] software project provides a way of providing a web hosted gem source.
 
 [diy]: http://guides.rubygems.org/run-your-own-gem-server/
 [giab]: https://github.com/geminabox/geminabox
 
-On OS X using bash, launch the container with:
+## A safe way of persisting data volumes
+
+As OS X and Windows do not directly provide containers, the Docker host is a Linux VM created using `docker-machine` and a `boot2docker` ISO, both available as part of the Docker Toolbox.
+
+The boot2docker ISO might get updated or upgraded, or perhaps replaced with some other suitable distribution. The containers can be recreated via `docker build`, but persisted data cannot.
+
+To keep data volumes from being lost in the move to a new machine we can map them to a path on a second virtual store (e.g. VHD or VMDK device) that we just detach from the old Docker host VM and attach to the new host VM.
+
+The file `data-drive-setup.md` describes how to create a second virtual drive onto which data volumes can be mapped. The remainder of this document assumes that such a "data drive" exists, and is persisting anything written under the host file path `/var/lib/dockerdata`.
+
+## Building the geminabox server container
+
+[Gem In A Box][giab] is both a [Ruby][ruby] web application, hosted using [Rack][rack], [Sinatra][sinatra], and the builtin [WEBRick][webrick] server. It comes with a sample Dockerfile that can be used as a starting point for creating a container to run the `geminabox` server.
+
+[ruby]: https://www.ruby-lang.org/en/
+[rack]: https://github.com/rack/rack
+[sinatra]: https://github.com/sinatra/sinatra
+[webrick]: http://ruby-doc.org/stdlib-2.3.1/libdoc/webrick/rdoc/index.html
+
+I've updated the Dockerfile a bit to support deployment from both an OS X and a Windows 10 host. It has four sections:
+
+* specifying the base image
+* setting up the working directory
+* installing `geminabox`---copying the source code to the server and installing the antecedent gems
+* exposing the web service port and starting the web application
+
+It looks like this:
+
+```nohighlight
+FROM ruby:2.3
+
+MAINTAINER  Dave Hein <dhein@acm.org>
+
+# To void the cache beyond the base image, change REFRESHED_AT to current time
+#
+ENV REFRESHED_AT 2016-05-12T04:27-0500
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+ENV BUNDLE_AT 2016-05-12T12:29-0500
+# Install the antecedent gems
+#
+COPY geminabox/ /usr/src/app
+#
+# Fix file permissions because we are copying from Windows
+#
+COPY fix-permissions.sh /usr/src/app
+RUN chmod 744 fix-permissions.sh
+RUN ./fix-permissions.sh
+#
+RUN bundle install
+RUN bundle config --global frozen 1
+
+ENV GEMINABOX_AT 2016-05-12T04:27-0500
+# ########################################
+# These commands are from the geminabox Dockerfile
+#
+# RUN mkdir data
+EXPOSE 9292
+ENTRYPOINT ["rackup", "--host", "0.0.0.0"]
+```
+
+Note the use of the `fix-permissions.sh` script. This is necessary because the windows Docker client will set all permissions to '`-rwxr-xr-x`' (o766) for all files COPY-ed into the image. If you aren't dealing with Windows, then execution of that script that can be removed from the Dockerfile.
+
+Build the image with:
+
+```bash
+docker build -t datihein/geminabox:v0.13.1 .
+```
+
+## Starting the container
+
+On OS X using bash, run the container with:
 
 ```bash
 docker run -d -p 9292:9292 \
@@ -13,7 +85,7 @@ docker run -d -p 9292:9292 \
   datihein/geminabox:v0.13.1
 ```
 
-or on Windows 10 using Powershell, launch the container with
+or on Windows 10 using Powershell, run the container with
 
 ```powershell
 & docker run -d -p 9292:9292 `
@@ -21,110 +93,30 @@ or on Windows 10 using Powershell, launch the container with
   datihein/geminabox:v0.13.1
 ```
 
-# Creating
-## Adding a new VMDK to hold persistent data (VirtualBox)
+You can check that it is running by pointing your browser to the URL `http://<dockerip>:9292`, where `<dockerip>` is whatever `docker-machine ip` returns. For example, `http://192.168.99.100:9292`.
 
-This scenario is for Hyper-V boot2docker VMs.
+## Client setup
 
-We have a boot2docker VM with a 20GB disk; initially 17GB is free. We want to have a persistent space for Docker containers and want to be able to grow larger than 20GB. So, we'll add another disk to the system.
+To setup the client I created a Ruby virtual environment in a `client` subdirectory. I used Ruby 2.0.0p598, and I updated rubygems to 2.0.17.
 
-### Creating the VMDK (VirtualBox)
+I simply installed the `geminabox` gem into that virtual environment using `bundle install`. The Gemfile looks like:
 
-To create the data VMDK and format it, follow these steps.
+```nohighlight
+source "https://rubygems.org"
 
-1. Shutdown the VM.
-2. Create a new dynamic VMDK called `dkr-data.vmdx` attached to the SATA controller of the VirtualBox Hyper-V boot2docker VM.
-2. Start the VM
-2. SSH to the VM using `docker-machine ssh`
-3. In my case the new disk was assiged to `/dev/sdb`.
-4. Create a partition on the new disk using `sudo fdisk /dev/sdb`.
-    * Select command `n` to create a new partition,
-    * command `e` to make it an extended partition,
-    * `1` for the first partition, *
-    * take the default start and end cylinder,
-    * `n` to create a new partition (again),
-    * `l` to create a logical partition,
-    * take the default start and end cylinder,
-    * and `w` to write the partition table.
-5. Run `sudo fdisk /dev/sdb` again and use command `p` to print the partition table. In my case I see the logical partition assigned as `/dev/sdb5`.
-5. Create the `ext4` filesystem on the disk: `sudo mkfs.ext4 -L boot2docker-data /dev/sdb5`
-
-### Mounting and mapping the VMDK (VirtualBox)
-
-To make sure the VM mounts the disk on boot, and to map the persistent store to `/var/lib/dockerdata`, follow these steps:
-
-1. `cd /var/lib/boot2docker` (because this directory is symlinked to the primary persistent store for the VM)
-2. `sudo vi bootlocal.sh`[^bootlocal] and put this in the file:
-
-```bash
-#! /bin/sh
-#
-
-# mount the data volume
-#
-mount -t ext4 /dev/sdb5 /mnt/sdb5
-
-# link to /var/lib/dockerdata
-#
-ln -s /mnt/sdb5 /var/lib/dockerdata
+gem 'geminabox', '0.13.1'
 ```
 
-[^bootlocal]: (Note: I found out about `bootlocal.sh` here: [http://stackoverflow.com/questions/26639968/boot2docker-startup-script-to-mount-local-shared-folder-with-host][http://stackoverflow.com/questions/26639968/boot2docker-startup-script-to-mount-local-shared-folder-with-host]. See `/opt/bootscript.sh` to see how and when `bootlocal.sh` gets invoked.)
+Once that is done, the `inabox` command is plugged into `gem`. You can do `gem inabox --help` to see the options.
 
-## Adding a new VHD to hold persistent data (Hyper-V)
+I configured the connection to the `geminabox` web app by doing `gem inabox -c` and supplying the URL `http://192.168.99.100:9292`; you'd use whatever IP your docker VM has.
 
-This scenario is for Hyper-V boot2docker VMs.
+## Pushing gems
 
-We have a boot2docker VM with a 20GB disk; initially 17GB is free. We want to have a persistent space for Docker containers and want to be able to grow larger than 20GB. So, we'll add another disk to the system.
+Then I downloaded, from [rubygems.org](https://rubygems.org/gems/rdoc/versions/4.2.1) a gem that I wanted to provide via the `geminabox` server and I pushed it up to the server by doing `gem inabox ~/Downloads/rdoc-4.2.1.gem`
 
-### Creating the VHD
+## Using the geminabox source
 
-This has a couple steps. First is to create a dynamically expanding VHD and attach it to the boot2docker VM and format it. Second is to create a second VHD that is a differencing disk with the first as the base. This way if we want to create additional Linux formatted VHDs we don't have to go through the formatting step.
+You can add the `geminabox` server to your gem sources with the command `gem sources --add http://192.168.99.100:9292`.
 
-These steps are based on a blog post by Chris Swan called ["Boot2Docker on HyperV"][swan].
-
-[swan]: http://blog.thestateofme.com/2014/02/18/boot2docker-on-hyper-v/
-
-To create the base VHD and format it, follow these steps.
-
-1. Shutdown the VM.
-2. Create a new dynamic VHD called dkr-base.vhd attached to one of the IDE controllers on the Hyper-V boot2docker VM.
-2. Start the VM
-2. Use PuTTY to `ssh` to the VM
-3. In my case I added the disk to the second IDE controller and so the device was `/dev/sdb`.
-4. Create a partition on the new disk using `sudo fdisk /dev/sdb`. Select command `n` to create a new partition, command `e` to make it an extended partition, `1` for the first partition, take the default start and end cylinder, `n` to create a new partition, `l` to create a logical partition, take the default start and end cylinder, and `w` to write the partition table.
-5. Create the `ext4` filesystem on the disk: `sudo mkfs.ext4 -L boot2docker-data /dev/sdb5`
-
-To create the data VHD (as a differencing disk), follow these steps:
-
-1. Shutdown the VM
-2. Detach the new disk
-3. Create a new differencing VHD called dkr-data.vhd with dkr-base.vhd as the base for differencing. Attach it to the same IDE controller.
-4. Start the VM
-5. Use PuTTY to `ssh` to the VM
-6. Mount the driving using `sudo mount -t ext4 /dev/sdb5 /mnt/sdb5`
-
-To make sure the VM mounts the disk on boot, follow these steps:
-
-1. `cd /var/lib/boot2docker` (because this directory is symlinked to the primary persistent store for the VM)
-2. `vi bootlocal.sh` and put this in the file:
-
-```bash
-#! /bin/sh
-#
-
-# mount the data volume
-#
-mount -t ext4 /dev/sdb5 /mnt/sdb5
-```
-
-(Note: I found out about `bootlocal.sh` here: [http://stackoverflow.com/questions/26639968/boot2docker-startup-script-to-mount-local-shared-folder-with-host][http://stackoverflow.com/questions/26639968/boot2docker-startup-script-to-mount-local-shared-folder-with-host]. See `/opt/bootscript.sh` to see how and when `bootlocal.sh` gets invoked.)
-
-To add a data volume to a container that uses the new data volume, do something like this with the `-v` flag on the `docker run` command:
-
-```powershell
-& docker run -d -p 9292:9292 `
-  -v /mnt/sdb5/geminabox/data:/usr/src/app/data `
-  datihein/geminabox:v0.13.1
-```
-
+If you want to use that source exclusively then you'll need to remove rubygems.org with the command `gem sources --remove https://rubygems.org/`.
