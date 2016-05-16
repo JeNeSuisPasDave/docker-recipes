@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 #
 for i in $(find . -type f)
   do

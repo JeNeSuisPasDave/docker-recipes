@@ -1,16 +1,26 @@
-FROM ruby:2.3-
+FROM ruby:2.3-alpine
 
 MAINTAINER  Dave Hein <dhein@acm.org>
 
 # To void the cache beyond the base image, change REFRESHED_AT to current time
 #
 ENV REFRESHED_AT 2016-05-12T04:27-0500
+#
+ENV BUILD_PACKAGES bash curl-dev ruby-dev build-base
+ENV RUBY_PACKAGES ruby ruby-io-console ruby-bundler
+#
+RUN apk update && \
+    apk upgrade && \
+    apk add $BUILD_PACKAGES && \
+    apk add $RUBY_PACKAGES && \
+    rm -rf /var/cache/apk/*
+
+# install the app source
+#
+ENV SRC_AT 2016-05-12T12:29-0500
+#
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
-
-ENV BUNDLE_AT 2016-05-12T12:29-0500
-# Install the antecedent gems
-#
 COPY geminabox/ /usr/src/app
 #
 # Fix file permissions because we are copying from Windows
@@ -18,6 +28,10 @@ COPY geminabox/ /usr/src/app
 COPY fix-permissions.sh /usr/src/app
 RUN chmod 744 fix-permissions.sh
 RUN ./fix-permissions.sh
+
+# Install the antecedent gems
+#
+ENV BUNDLE_AT 2016-05-12T12:29-0500
 #
 RUN bundle install
 RUN bundle config --global frozen 1
@@ -26,6 +40,5 @@ ENV GEMINABOX_AT 2016-05-12T04:27-0500
 # ########################################
 # These commands are from the geminabox Dockerfile
 #
-# RUN mkdir data
 EXPOSE 9292
 ENTRYPOINT ["rackup", "--host", "0.0.0.0"]

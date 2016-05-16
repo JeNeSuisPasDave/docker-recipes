@@ -1,4 +1,4 @@
-FROM ruby:2.3-
+FROM ruby:2.3-slim
 
 MAINTAINER  Dave Hein <dhein@acm.org>
 
