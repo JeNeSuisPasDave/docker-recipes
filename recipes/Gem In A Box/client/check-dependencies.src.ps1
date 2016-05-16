@@ -1,44 +1,30 @@
-# NOTE: expect that this is preceded by:
-# source check-functions.src
+# NOTE: expect that this is preceded by source command:
+# . check-functions.src.ps1
 #
 
-SASS_VSN_EXP_=3.1.3
-SASS_VSN_MAX_=3.1.4
-CHUNKY_PNG_VSN_EXP_=1.2.0
-CHUNKY_PNG_VSN_MAX_=1.2.1
-FSSM_VSN_EXP_=0.2.7
-FSSM_VSN_MAX_=0.2.8
-COMPASS_VSN_EXP_=0.11.3
-COMPASS_VSN_MAX_=0.11.4
+$geminaboxVsnExpected_ = "0.13.1" | Extract-Version
+$geminaboxVsnMax_ = "0.14.0" | Extract-Version
 
-# Capture pip packages
+# Capture gem packages
 #
-PKGS_=`gem list`
+$rcmd = "gem"
+$rargs = "list" -split " "
+[System.Collections.ArrayList]$gems = Invoke-Expression "$rcmd $rargs"
 
-# Check whether Sass installed
-#
-is_this_gem_installed "sass" "${SASS_VSN_EXP_}" "${SASS_VSN_MAX_}"
-if (( 0 == $is_this_gem_installed )); then
-  exit 8
-fi
 
-# Check whether chunky_png installed
+# Check whether geminabox installed
 #
-is_this_gem_installed "chunky_png" "${CHUNKY_PNG_VSN_EXP_}" "${CHUNKY_PNG_VSN_MAX_}"
-if (( 0 == $is_this_gem_installed )); then
-  exit 8
-fi
+$min = $geminaboxVsnExpected_
+$max = $geminaboxVsnMax_
+If (-not ("geminabox" |
+        Is-GemInstalled -IsAtLeast $min -IsLessThan $max -GemList $gems)) {
+    $errcode = 4
+    Exit
+}
 
-# Check whether fssm installed
+# Check whether bundler installed
 #
-is_this_gem_installed "fssm" "${FSSM_VSN_EXP_}" "${FSSM_VSN_MAX_}"
-if (( 0 == $is_this_gem_installed )); then
-  exit 8
-fi
-
-# Check whether compass installed
-#
-is_this_gem_installed "compass" "${COMPASS_VSN_EXP_}" "${COMPASS_VSN_MAX_}"
-if (( 0 == $is_this_gem_installed )); then
-  exit 8
-fi
+If (-not ("bundler" | Is-GemInstalled -GemList $gems)) {
+    $errcode = 4
+    Exit
+}
