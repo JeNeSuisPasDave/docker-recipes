@@ -1,0 +1,8 @@
+# Very small Docker image that provides openssl
+#
+FROM gliderlabs/alpine:3.3
+MAINTAINER Dave Hein <dhein@acm.org>
+
+ARG REFRESHED_AT=2016-05-17T18:29-0500
+RUN apk-install --update openssl
+RUN apk-install --update expect
