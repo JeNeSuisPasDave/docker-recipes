@@ -1,0 +1,3 @@
+# Don't copy anything under secrets to the Docker context
+#
+secrets/
