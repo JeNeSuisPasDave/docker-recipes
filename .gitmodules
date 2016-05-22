@@ -1,3 +1,6 @@
 [submodule "recipes/Gem In A Box/geminabox"]
 	path = recipes/Gem In A Box/geminabox
 	url = https://github.com/geminabox/geminabox.git
+[submodule "docker-book/dockerbook-code"]
+	path = docker-book/dockerbook-code
+	url = https://github.com/jamtur01/dockerbook-code.git

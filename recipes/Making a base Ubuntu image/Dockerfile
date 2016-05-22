@@ -10,7 +10,7 @@ MAINTAINER  Dave Hein <dave.hein@aspentech.com>
 
 # To void the cache beyond the base image, change REFRESHED_AT to current time
 #
-ENV REFRESHED_AT 2016-05-08T15:39-0500
+ENV BASE_REFRESHED_AT 2016-05-22T07:24-0500
 
 # Setting this environment variable prevents errors during package installs
 # that look like:
