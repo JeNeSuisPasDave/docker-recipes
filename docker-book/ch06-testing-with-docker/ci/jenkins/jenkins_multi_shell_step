@@ -1,12 +1,10 @@
 # Build the image to be used for this run.
 cd $OS && IMAGE=$(docker build . | tail -1 | awk '{ print $NF }')
 
-# Build the directory to be mounted into Docker.
-
-MNT="$WORKSPACE/.."
-
 # Execute the build inside Docker.
-CONTAINER=$(docker run -d -v "$MNT:/opt/project" $IMAGE /bin/bash -c "cd /opt/project/$OS && rake spec")
+CMD_="mkdir -p /opt/project/$OS && ln -s ${WORKSPACE} /opt/project/$OS/workspace && cd /opt/project/$OS/workspace && rake spec"
+CONTAINER=$(docker run -d --volumes-from dv_jenkins_workspace \
+  "$IMAGE" /bin/bash -c "$CMD_")
 
 # Attach to the container's streams so that we can see the output.
 docker attach $CONTAINER
