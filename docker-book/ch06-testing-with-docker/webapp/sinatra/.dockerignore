@@ -1,0 +1,6 @@
+# Don't copy anything here into the Docker context when building the image
+#
+redis/
+webapp/
+webapp_redis/
+*.sh/
