@@ -1,0 +1,35 @@
+## Gems that will be installed:
+
+Successfully installed liquid-2.6.3
+Successfully installed kramdown-1.11.1
+Successfully installed mercenary-0.3.6
+Successfully installed safe_yaml-1.0.4
+Successfully installed colorator-0.1
+Successfully installed yajl-ruby-1.2.1
+Successfully installed posix-spawn-0.3.11
+Successfully installed pygments.rb-0.6.3
+Successfully installed redcarpet-3.3.4
+Successfully installed blankslate-2.1.2.4
+Successfully installed parslet-1.5.0
+Successfully installed toml-0.1.2
+Successfully installed jekyll-paginate-1.1.0
+Successfully installed multipart-post-2.0.0
+Successfully installed faraday-0.9.2
+Successfully installed addressable-2.4.0
+Successfully installed sawyer-0.7.0
+Successfully installed octokit-4.3.0
+Successfully installed jekyll-gist-1.4.0
+Successfully installed coffee-script-source-1.10.0
+Successfully installed execjs-2.7.0
+Successfully installed coffee-script-2.4.1
+Successfully installed jekyll-coffeescript-1.0.1
+Successfully installed sass-3.4.22
+Successfully installed jekyll-sass-converter-1.4.0
+Successfully installed rb-fsevent-0.9.7
+Successfully installed ffi-1.9.10
+Successfully installed rb-inotify-0.9.7
+Successfully installed listen-3.0.8
+Successfully installed jekyll-watch-1.4.0
+Successfully installed fast-stemmer-1.0.2
+Successfully installed classifier-reborn-2.0.4
+Successfully installed jekyll-2.5.3
