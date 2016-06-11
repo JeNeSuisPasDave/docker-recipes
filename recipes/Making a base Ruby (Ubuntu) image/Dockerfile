@@ -14,7 +14,6 @@ MAINTAINER Dave Hein "dhein@acm.org"
 #
 ARG DEBIAN_FRONTEND=noninteractive
 
-
 # Borrowed from https://github.com/docker-library/buildpack-deps/blob/master/jessie/curl/Dockerfile
 #
 RUN apt-get update && apt-get install -y --no-install-recommends \
