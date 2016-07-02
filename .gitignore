@@ -2,6 +2,13 @@
 #
 .DS_Store
 
+# archives
+#
+*.zip
+*.7z
+*.tar
+*.gz
+
 # Multimarkdown output
 #
 *.html

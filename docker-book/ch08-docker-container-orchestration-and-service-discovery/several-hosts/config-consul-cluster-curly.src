@@ -1,0 +1,15 @@
+#! /bin/sh
+#
+PUBLIC_IP=192.168.99.101
+export PUBLIC_IP
+JOIN_IP=192.168.99.102
+export JOIN_IP
+
+# Experiments with consul cluster
+#
+echo "Put this in /var/lib/boot2docker/profile:"
+echo ""
+echo "DOCKER_OPTS='--dnc 172.17.0.1 --dns 8.8.8.8 --dns-search service.consul'"
+echo ""
+echo "Then restart docker: sudo /etc/init.d/docker restart"
+echo ""
