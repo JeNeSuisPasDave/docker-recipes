@@ -8,6 +8,7 @@
 *.7z
 *.tar
 *.gz
+*.bz2
 
 # Multimarkdown output
 #

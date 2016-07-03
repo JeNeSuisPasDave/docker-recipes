@@ -17,8 +17,6 @@ PUBLIC_IP="$(ifconfig eth1 | awk '
   }')"
 export PUBLIC_IP
 echo $PUBLIC_IP
-JOIN_IP=192.168.99.102
-export JOIN_IP
 
 # Experiments with consul cluster
 #
