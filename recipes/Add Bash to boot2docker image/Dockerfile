@@ -1,4 +1,5 @@
-FROM boot2docker/boot2docker
+FROM datihein/boot2docker:v1.12.2
+#FROM boot2docker/boot2docker
 
 # Append indicator this is modified image
 RUN echo "\nCustom boot2docker.iso\nAdded: bash\n" >> $ROOTFS/etc/motd
@@ -23,10 +24,10 @@ rm -rf /tmp/bash-completion.tcz
 
 # Make bash a valid shell
 #
-RUN echo '/usr/local/bin/bash' | tee -a /etc/shells > /dev/null
+RUN echo '/usr/local/bin/bash' | tee -a $ROOTFS/etc/shells > /dev/null
 
-# Set bash as the shell for userid 'docker'
-# RUN sed -i '/^docker:/s#:[^:]\+$#:/usr/local/bin/bash#' /etc/passwd
+# Set bash as the shell for userid 'root'
+RUN sed -i '/^root:/s#:[^:]\+$#:/usr/local/bin/bash#' $ROOTFS/etc/passwd
 
 # build the iso
 RUN /make_iso.sh

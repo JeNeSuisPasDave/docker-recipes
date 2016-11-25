@@ -6,8 +6,8 @@
 			"name": "Docker Recipes",
 			"file_exclude_patterns": [
 				"*.html" ],
-			"folder_exlude_patterns": [
-				".git" ]
+			"folder_exclude_patterns": [
+				".git", "tmp" ]
 		}
 	],
 	"settings":
