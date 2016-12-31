@@ -25,3 +25,7 @@ delme-utility.src.ps1
 # scratch directory
 #
 /tmp
+
+# big files
+#
+*.iso
