@@ -18,8 +18,8 @@
 # Arguments:
 #
 #    $1: The data volume container name (e.g. dv-example-src). Required.
-#    $2: The local source directory (e.g. ${TMPDIR}/mnt/src). Required.
 #    $3: The mount point directory (e.g. /mnt/src). Required.
+#    $2: The local target directory (e.g. ${TMPDIR}/mnt/src). Required.
 #    $4: "update" to transfer only changed files and directories. If not
 #        supplied then existing files and directories are overwritten or
 #        removed. Optional.
@@ -112,12 +112,12 @@ fi
 #
 IGNORE_TIMES_DURING_RSYNC_=1
 DV_NAME_=""
-SRC_DIR_=""
+TGT_DIR_=""
 MNT_DIR_=""
 if (( 4 == $# )); then
   DV_NAME_="$1"
-  SRC_DIR_="$2"
-  MNT_DIR_="$3"
+  MNT_DIR_="$2"
+  TGT_DIR_="$3"
   if [ "update" != "$4" ]; then
     echo "ERROR: argument 4 must be 'update' or must not be supplied."
     exit 2
@@ -125,25 +125,26 @@ if (( 4 == $# )); then
   IGNORE_TIMES_DURING_RSYNC_=0
 elif (( 3 == $# )); then
   DV_NAME_="$1"
-  SRC_DIR_="$2"
-  MNT_DIR_="$3"
+  MNT_DIR_="$2"
+  TGT_DIR_="$3"
 else
   echo "ERROR: '${SCRIPTNAME_}' expected three or four arguments; got $#"
   exit 2
 fi
-if [ ! -d "${SRC_DIR_}" ]; then
-  echo "ERROR: argument 2, '${SRC_DIR_}', does not exist or is not a directory"
-  exit 2
+data_volume_exists "${DV_NAME_}"
+rc_=$?
+if (( 0 != $rc_ )); then
+  echo "ERROR: data volume container '${DV_NAME_}' does not exist."
 fi
-SRC_BASE_=$( basename "${SRC_DIR_}" )
+TGT_BASE_=$( basename "${TGT_DIR_}" )
 MNT_BASE_=$( basename "${MNT_DIR_}" )
-if [[ "${SRC_BASE_}" -ne "${MNT_BASE_}" ]]; then
+if [[ "${TGT_BASE_}" -ne "${MNT_BASE_}" ]]; then
   MSG_="ERROR: the directories in arguments 2 and 3"
   MSG_="${MSG_} must have the same rightmost folder name"
   echo "${MSG_}"
   exit 2
 fi
-SRC_ROOT_=$( dirname "${SRC_DIR_}" )
+TGT_ROOT_=$( dirname "${TGT_DIR_}" )
 MNT_ROOT_=$( dirname "${MNT_DIR_}" )
 
 # initialization
@@ -168,34 +169,28 @@ if [ "none" != "${HOST_WK_DIR_}" ]; then
     "docker_host_remove_workdir \"${DKR_MACHINE_}\" \"${HOST_WK_DIR_}\"" EXIT
 fi
 
-# Create the data volume container, if necessary
-#
-data_volume_exists "${DV_NAME_}"
-rc_=$?
-if (( 0 != $rc_ )); then
-  if (( 2 == $rc_ )); then
-    exit 2
-  fi
-  create_data_volume_container "${RSYNC_IMAGE_}" "${DV_NAME_}" "${MNT_DIR_}"
-fi
-
 # Update the host working directory
 #
 if [ "none" != "${HOST_WK_DIR_}" ]; then
-  rsync_src_to_workdir "${DKR_MACHINE_}" "${IP_}" \
-    "${SRC_DIR_}" "${HOST_WK_DIR_}${MNT_ROOT_}" \
+  rsync_dv_to_workdir "${DV_NAME_}" "${HOST_WK_DIR_}" \
+    "${RSYNC_IMAGE_}" "${MNT_DIR_}" "${HOST_WK_DIR_}${MNT_ROOT_}" \
     "${IGNORE_TIMES_DURING_RSYNC_}"
 fi
 
-# Upate the data volume container
+# Upate the local directory
 #
+mkdir -p "${TGT_ROOT_}"
+if (( 0 != $? )); then
+  echo "ERROR: could not create local directory '${TGT_ROOT_}'"
+  exit 2
+fi
 if [ "none" != "${HOST_WK_DIR_}" ]; then
-  rsync_workdir_to_dv "${DV_NAME_}" "${HOST_WK_DIR_}" \
-    "${RSYNC_IMAGE_}" "${HOST_WK_DIR_}${MNT_DIR_}" "${MNT_ROOT_}" \
+  rsync_workdir_to_src "${DKR_MACHINE_}" "${IP_}" \
+    "${HOST_WK_DIR_}${MNT_DIR_}" "${TGT_ROOT_}" \
     "${IGNORE_TIMES_DURING_RSYNC_}"
 else
-  rsync_workdir_to_dv "${DV_NAME_}" "${SRC_DIR_}" \
-    "${RSYNC_IMAGE_}" "${SRC_DIR_}" "${MNT_ROOT_}" \
+  rsync_dv_to_workdir "${DV_NAME_}" "${TGT_ROOT_}" \
+    "${RSYNC_IMAGE_}" "${MNT_DIR_}" "${TGT_ROOT_}" \
     "${IGNORE_TIMES_DURING_RSYNC_}"
 fi
 
